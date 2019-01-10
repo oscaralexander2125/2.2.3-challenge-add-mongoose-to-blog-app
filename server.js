@@ -3,10 +3,26 @@
 const express = require('express');
 const mongoose = require('mongoose');
 
+mongoose.Promise = global.Promise;
+
 const {PORT, DATABASE_URL} = require('./config');
+const {Seed} = require('./models');
 
 const app = express();
 app.use(express.json());
+
+app.get('/posts', (req, res) => {
+  Seed.find()
+  .then(seeds => {
+    res.json(
+      seeds.map(seed => seed.serialize())
+    );
+  })
+  .catch(err => {
+    console.error(err);
+    res.status(500).json({message: "Internal server error"});
+  })
+});
 
 let server;
 
