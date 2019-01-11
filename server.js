@@ -24,6 +24,10 @@ app.get('/posts', (req, res) => {
   })
 });
 
+app.post('/post,', (req, res) => {
+  Seed.create({title:req.body.title, content:req.body.content}).then(data => res.status(201).json(data.serialize()))
+})
+
 let server;
 
 function runServer(databaseUrl, port=PORT) {
