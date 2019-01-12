@@ -55,7 +55,7 @@ app.post('/posts', jsonParser, (req, res) => {
   });
 });
 
-app.put('posts/:id', jsonParser, (req, res) => {
+app.put('/posts/:id', jsonParser, (req, res) => {
   if (!(req.params.id === req.body.id)) {
     const message = 
     `Request path id (${req.params.id}) and request body id ` +
