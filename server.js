@@ -8,17 +8,18 @@ const jsonParser = bodyParser.json();
 mongoose.Promise = global.Promise;
 
 const {PORT, DATABASE_URL} = require('./config');
-const {Seed} = require('./models');
+const {BlogPost, Author} = require('./models');
 
 const app = express();
 app.use(express.json());
 app.use(jsonParser);
 
 app.get('/posts', (req, res) => {
-  Seed.find()
-  .then(seeds => {
+  BlogPost.find()
+  .populate('author')
+  .then(blogs => {
     res.json(
-      seeds.map(seed => seed.serialize())
+      blogs.map(blog => blog.serialize())
     );
   })
   .catch(err => {
@@ -28,7 +29,7 @@ app.get('/posts', (req, res) => {
 });
 
 app.get('/posts/:id', (req, res) => {
-  Seed.findById(req.params.id)
+  BlogPost.findById(req.params.id)
   .then(seed => res.json(seed.serialize()))
   .catch(err => {
     console.error(err);
@@ -37,7 +38,7 @@ app.get('/posts/:id', (req, res) => {
 });
 
 app.post('/posts', jsonParser, (req, res) => {
-  const requiredFields = ['title', 'content'];
+  const requiredFields = ['title', 'content', 'author_id'];
   for (let i = 0; i<requiredFields.length; i++) {
     const field = requiredFields[i];
     if(!(field in req.body)) {
@@ -47,8 +48,34 @@ app.post('/posts', jsonParser, (req, res) => {
     }
   }
 
-  Seed.create({title:req.body.title, content:req.body.content})
-  .then(data => res.status(201).json(data.serialize()))
+  Author.findById(req.body.author_id)
+  .then(author => {
+    if(author) {
+      BlogPost.create({
+        title:req.body.title, 
+        content:req.body.content, 
+        author: req.body.author_id
+      })
+
+      .then(data => res.status(201).json({
+        id:data.id,
+        author: `${author.firstName} ${author.lastName}`,
+        content: data.content,
+        title: data.title,
+        comments: data.comments
+      }))
+
+      .catch(err => {
+        console.error(err);
+        res.status(500).json({message: "Internal server error"});
+      });
+    }
+    else {
+      const message = 'Author not found'
+      console.error(message);
+      return res.status(400).send(message);
+    }
+  })
   .catch(err => {
     console.error(err);
     res.status(500).json({message: "Internal server error"});
