@@ -7,7 +7,7 @@ const seedSchema = mongoose.Schema({
   title: {type: String, required: true},
   author: {
     firstName: String,
-    lastname: String,
+    lastName: String,
   },
   content: {type: String, required: true},
   created: {type: Date, default: Date.now}
@@ -27,6 +27,6 @@ seedSchema.methods.serialize = function() {
   };
 };
 
-const Seed = mongoose.model('Seed', seedSchema);
-
+const Seed = mongoose.model('Seed', seedSchema,'seed');
+//singular name, assumes plural
 module.exports = {Seed};
