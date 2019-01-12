@@ -25,9 +25,6 @@ const blogSchema = mongoose.Schema({
   comments: [commentSchema]
 });
 
-blogSchema.virtual('authorName').get(function() {
-  return `${this.author.firstName} ${this.author.lastName}`.trim();
-});
 
 blogSchema.pre('find', function(next) {
   this.populate('author');
@@ -37,6 +34,10 @@ blogSchema.pre('find', function(next) {
 blogSchema.pre('findOne', function(next) {
   this.populate('author');
   next();
+});
+
+blogSchema.virtual('authorName').get(function() {
+  return `${this.author.firstName} ${this.author.lastName}`.trim();
 });
 
 blogSchema.methods.serialize = function() {
