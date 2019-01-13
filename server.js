@@ -117,6 +117,19 @@ app.delete('/posts/:id', (req, res) => {
   .catch(err => res.status(500).json({message: 'Internal server error'}));
 })
 
+app.get('/authors', (req, res) => {
+  Author.find()
+  .then(authors => {
+    res.json(
+      authors.map(author => author)
+    );
+  })
+  .catch(err => {
+    console.error(err);
+    res.status(500).json({message: 'Internal server error'})
+  });
+});
+
 app.post('/authors', (req, res) => {
   const requiredFields = ['firstName', 'lastName', 'userName']
   for (let i = 0; i<requiredFields.length; i++) {
